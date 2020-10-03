@@ -25,6 +25,20 @@ function something_update(s)
 	be_alive(s)
 end
 
+function somethingdist_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	if not check_aabb(s,player,35) then
+		s.vx += sin(motion_angle)*0.2
+		s.vy += cos(motion_angle)*0.2
+		be_tangible(s)
+		hurt_from(s,{0,2},enemy_hurt)
+		be_alive(s)
+	else shoot(s,simple_projectile,simple_projectile_draw,motion_angle,2,0)
+	end
+end
+
 function slime_draw(s)
 	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
 		spr(flr(s.t/7)%3+6,s.x-4,s.y-4,1,1,s.vx < 0)
@@ -39,12 +53,13 @@ end
 function skelet_draw(s)
 	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
 		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	else spr(9,s.x-4,s.y-4,1,1,s.vx < 0)
 	end
 	be_tangible(s)
 end
 
 function skelet_update(s)
-	something_update(s)
+	somethingdist_update(s)
 end
 
 function vaper_draw(s)
@@ -66,7 +81,7 @@ function oreshki_draw(s)
 end
 
 function oreshki_update(s)
-	something_update(s)
+	somethingdist_update(s)
 end
 
 function potato_draw(s)
@@ -113,13 +128,13 @@ function bird_draw(s)
 	be_tangible(s)
 end
 
-spawn(15,15,slime_update,slime_draw,1)
-spawn(12,12,skelet_update,skelet_draw,1)
-spawn(13,13,vaper_update,vaper_draw,1)
-spawn(14,14,oreshki_update,oreshki_draw,1)
-spawn(14,12,potato_update,potato_draw,1)
-spawn(12,14,chair_update,chair_draw,1)
-spawn(12,13,pepper_update,pepper_draw,1)
+--spawn(15,15,slime_update,slime_draw,1)
+--spawn(12,12,skelet_update,skelet_draw,1)
+--spawn(13,13,vaper_update,vaper_draw,1)
+--spawn(14,14,oreshki_update,oreshki_draw,1)
+--spawn(14,12,potato_update,potato_draw,1)
+--spawn(12,14,chair_update,chair_draw,1)
+--spawn(12,13,pepper_update,pepper_draw,1)
 spawn(13,12,bird_update,bird_draw,1)
 
 
