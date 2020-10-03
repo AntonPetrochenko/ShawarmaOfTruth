@@ -10,6 +10,8 @@ function spawn(x,y,upd,drw)
 	new_gameobj.draw = drw
 	new_gameobj.x = x
 	new_gameobj.y = y
+	new_gameobj.vx = 0
+	new_gameobj.vy = 0
 	add(game_objects,new_gameobj)
 end
 
@@ -18,7 +20,8 @@ function destroy(this)
 end
 
 function dummy_draw(s)
-	spr(0,s.x,s.y)
+	spr(0,s.x-4,s.y-4)
+	be_tangible(s)
 end
 
 function dummy_update(s)
@@ -26,10 +29,11 @@ function dummy_update(s)
 end
 
 function player_update(s)
-	if (btn(⬇️)) s.y += 1
-	if (btn(⬆️)) s.y -= 1
-	if (btn(⬅️)) s.x -= 1
-	if (btn(➡️)) s.x += 1
+	be_tangible(s)
+	if (btn(⬇️)) s.vy += .4
+	if (btn(⬆️)) s.vy -= .4
+	if (btn(⬅️)) s.vx -= .4
+	if (btn(➡️)) s.vx += .4
 	push_others(s)
 end
 
@@ -44,13 +48,14 @@ function _draw()
 	for obj in all(game_objects) do
 		obj:draw()
 	end
+	map()
 end
 
 function push_others(s)
 	for obj in all(game_objects) do
 		if (check_aabb(s,obj,5)) then
-			obj.x -= (s.x - obj.x)/5
-			obj.y -= (s.y - obj.y)/5
+			obj.vx -= (s.x - obj.x)/10
+			obj.vy -= (s.y - obj.y)/10
 		end
 	end
 end
@@ -60,7 +65,18 @@ function be_projectile(s)
 end
 
 function be_tangible(s)
+	if flag_at(s.x+s.vx,s.y,7) then
+		s.vx = 0
+	end
 
+	if flag_at(s.x,s.y+s.vy,7) then
+		s.vy = 0
+	end
+
+	s.vx *= 0.8
+	s.vy *= 0.8
+	s.x += s.vx
+	s.y += s.vy
 end 
 
 function be_alive(s)
@@ -76,6 +92,10 @@ function check_aabb(s,obj,size)
 		and s.x > obj.x-size
 		and s.y < obj.y+size
 		and s.y > obj.y-size
+end
+
+function flag_at(x,y,f)
+	return fget(mget(flr(x/8),flr(y/8)),f)
 end
 
 spawn(5,5,dummy_update,dummy_draw)
