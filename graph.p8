@@ -8,13 +8,15 @@ end
 
 function player_draw(s)
 	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
-		spr(flr(s.t/2)%5+1,s.x-4,s.y-4,1,1,s.vx < 0)
+		spr(flr(s.t/4)%5+1,s.x-4,s.y-4,1,1,s.vx < 0)
 	else spr(1,s.x-4,s.y-4,1,1,s.vx < 0)
 	end
 end
 
 function slime_draw(s)
-	spr(6,s.x-4,s.y-4)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+6,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
 	be_tangible(s)
 end
 
@@ -25,14 +27,138 @@ function slime_update(s)
 	s.vx += sin(motion_angle)*0.2
 	s.vy += cos(motion_angle)*0.2
 	be_tangible(s)
+	push_others(s)
 	enemy_hurt(s)
 end
 
-function enemy_hurt(s)
+function skelet_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
 
+function skelet_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function vaper_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
+
+function vaper_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function oreshki_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
+
+function oreshki_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function potato_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
+
+function potato_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function chair_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
+
+function chair_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function pepper_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function pepper_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
+end
+
+function bird_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	push_others(s)
+	enemy_hurt(s)
+end
+
+function bird_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/7)%3+9,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+	be_tangible(s)
 end
 
 spawn(15,15,slime_update,slime_draw,1)
+spawn(12,12,skelet_update,skelet_draw,1)
 
 
 
