@@ -48,12 +48,7 @@ end
 
 function push_others(s)
 	for obj in all(game_objects) do
-		if (true 
-		and s.x < obj.x+5
-		and s.x > obj.x-5
-		and s.y < obj.y+5
-		and s.y > obj.y-5 
-					) then
+		if (check_aabb(s,obj,5)) then
 			obj.x -= (s.x - obj.x)/5
 			obj.y -= (s.y - obj.y)/5
 		end
@@ -75,6 +70,14 @@ end
 function hurt_from(s)
 
 end
+
+function check_aabb(s,obj,size)
+	return s.x < obj.x+5
+		and s.x > obj.x-size
+		and s.y < obj.y+size
+		and s.y > obj.y-size
+end
+
 spawn(5,5,dummy_update,dummy_draw)
 spawn(5,5,player_update,dummy_draw)
 __gfx__
