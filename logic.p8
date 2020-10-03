@@ -14,7 +14,7 @@ function d(n)
 end
 function nothing() end
 
-function spawn(x,y,upd,drw,w)
+function spawn(x,y,upd,drw,w,hp)
 	new_gameobj = {}
 	new_gameobj.destroy = destroy
 	new_gameobj.update = upd
@@ -24,6 +24,7 @@ function spawn(x,y,upd,drw,w)
 	new_gameobj.vx = 0
 	new_gameobj.vy = 0
 	new_gameobj.t = 1
+	new_gameobj.hp = hp or 3
 	new_gameobj.w = w or 1
 	add(game_objects,new_gameobj)
 	return new_gameobj
@@ -51,7 +52,7 @@ end
 
 function dummy_update(s)
 	push_others(s)
-	hurt_from(s,{0})
+	hurt_from(s,{0},enemy_hurt)
 end
 
 function player_update(s)
@@ -157,7 +158,7 @@ function game_draw()
 	camera(player.x-64,player.y-64)
 	for obj in all(game_objects) do
 		obj:draw()
-		print(obj.w,obj.x,obj.y,8)
+		print(obj.hp,obj.x,obj.y,8)
 	end
 	map()
 	camera(0,0)
@@ -203,16 +204,22 @@ function be_alive(s)
 
 end
 
-function hurt_from(s,w)
+function hurt_from(s,w,res)
 	for obj in all(game_objects) do
 		for team in all (w) do
 			if obj.contactdamage and obj.w == team and check_aabb(s,obj,3) then
 				if obj.isbullet then
 					destroy(obj)
 				end
+				res(s)
+				--d(9)
 			end
 		end
 	end
+end
+
+function enemy_hurt(s)
+	s.hp -= 1
 end
 
 function player_draw(s) 
