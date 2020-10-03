@@ -2,6 +2,40 @@ pico-8 cartridge // http://www.pico-8.com
 version 29
 __lua__
 
+function _update()
+	
+end
+
+function player_draw(s)
+	if abs(s.vx) > 0.1 or abs(s.vy) > 0.1 then
+		spr(flr(s.t/2)%5+1,s.x-4,s.y-4,1,1,s.vx < 0)
+	else spr(1,s.x-4,s.y-4,1,1,s.vx < 0)
+	end
+end
+
+function slime_draw(s)
+	spr(6,s.x-4,s.y-4)
+	be_tangible(s)
+end
+
+function slime_update(s)
+	local delta_x = player.x - s.x
+	local delta_y = player.y - s.y
+	local motion_angle = atan2(delta_y,delta_x)
+	s.vx += sin(motion_angle)*0.2
+	s.vy += cos(motion_angle)*0.2
+	be_tangible(s)
+	enemy_hurt(s)
+end
+
+function enemy_hurt(s)
+
+end
+
+spawn(15,15,slime_update,slime_draw,1)
+
+
+
 __gfx__
 
 __map__
