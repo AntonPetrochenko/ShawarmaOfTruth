@@ -183,11 +183,13 @@ function check_aabb(s,obj,size)
 		and s.y < obj.y+size
 		and s.y > obj.y-size
 end
+player = {}
 
-spawn(16,16,dummy_update,dummy_draw)
-player = spawn(16,16,player_update,player_draw,0)
-spawn(32,32,dummy_sentry_update,dummy_draw)
-
+function _init()
+	spawn(16,16,dummy_update,dummy_draw)
+	player = spawn(16,16,player_update,player_draw,0)
+	spawn(32,32,dummy_sentry_update,dummy_draw)
+end
 
 
 
