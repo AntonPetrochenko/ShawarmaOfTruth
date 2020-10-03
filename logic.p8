@@ -3,7 +3,12 @@ version 29
 __lua__
 game_objects = {}
 
-function spawn(x,y,upd,drw)
+function d() 
+	cls(1)
+	flip()
+end
+
+function spawn(x,y,upd,drw,w)
 	new_gameobj = {}
 	new_gameobj.destroy = destroy
 	new_gameobj.update = upd
@@ -12,13 +17,27 @@ function spawn(x,y,upd,drw)
 	new_gameobj.y = y
 	new_gameobj.vx = 0
 	new_gameobj.vy = 0
+	new_gameobj.t = 1
+	new_gameobj.w = w or 1
 	add(game_objects,new_gameobj)
+	return new_gameobj
 end
 
-function destroy(this)
-	del(game_objects,this)
+function shoot(s,upd,drw,angle,vel,w)
+	bullet = spawn(s.x,s.y,upd,drw)
+	bullet.vel = vel
+	bullet.angle = angle
+	bullet.w = w
+	bullet.isbullet = true
+	bullet.contactdamage = true
+	return bullet
 end
 
+function destroy(s)
+	del(game_objects,s)
+end
+
+----DUMMY
 function dummy_draw(s)
 	spr(0,s.x-4,s.y-4)
 	be_tangible(s)
@@ -30,30 +49,54 @@ end
 
 function player_update(s)
 	be_tangible(s)
-	if (btn(⬇️)) s.vy += .4
-	if (btn(⬆️)) s.vy -= .4
-	if (btn(⬅️)) s.vx -= .4
-	if (btn(➡️)) s.vx += .4
+	if (btn(⬇️)) s.vy += .3
+	if (btn(⬆️)) s.vy -= .3
+	if (btn(⬅️)) s.vx -= .3
+	if (btn(➡️)) s.vx += .3
 	push_others(s)
+	hurt_from(s,{1})
 end
+----
+
+--DUMMY SENTRY
+function dummy_sentry_update(s)
+	if s.t > 30 then
+		s.t = 0
+		shoot(s,simple_projectile,simple_projectile_draw,0,1,1)
+	end
+end
+----
+
+--SIMPLE PROJECTILE
+function simple_projectile(s)
+	be_projectile(s)
+end
+
+function simple_projectile_draw(s)
+	spr(2,s.x-4,s.y-4)
+end
+----
 
 function _update60()
 	for obj in all(game_objects) do
+		obj.t += 1
 		obj:update()
 	end
 end
+
 
 function _draw()
 	cls()
 	for obj in all(game_objects) do
 		obj:draw()
+		print(obj.w,obj.x,obj.y,8)
 	end
 	map()
 end
 
 function push_others(s)
 	for obj in all(game_objects) do
-		if (check_aabb(s,obj,5)) then
+		if (check_aabb(s,obj,5) and not obj.isbullet) then
 			obj.vx -= (s.x - obj.x)/10
 			obj.vy -= (s.y - obj.y)/10
 		end
@@ -61,7 +104,13 @@ function push_others(s)
 end
 
 function be_projectile(s)
-
+	s.x += s.vx
+	s.y += s.vy
+	s.vx = sin(s.angle)*2
+	s.vy = cos(s.angle)*2
+	if flag_at(s.x,s.y,7) then
+		destroy(s)
+	end
 end
 
 function be_tangible(s)
@@ -77,14 +126,24 @@ function be_tangible(s)
 	s.vy *= 0.8
 	s.x += s.vx
 	s.y += s.vy
+
 end 
 
 function be_alive(s)
 
 end
 
-function hurt_from(s)
-
+function hurt_from(s,w)
+	for obj in all(game_objects) do
+		for team in all (w) do
+			if obj.contactdamage and obj.w == team and check_aabb(s,obj,3) then
+				d()
+				if obj.isbullet then
+					destroy(obj)
+				end
+			end
+		end
+	end
 end
 
 function check_aabb(s,obj,size)
@@ -99,7 +158,8 @@ function flag_at(x,y,f)
 end
 
 spawn(16,16,dummy_update,dummy_draw)
-spawn(16,16,player_update,dummy_draw)
+spawn(16,16,player_update,dummy_draw,0)
+spawn(32,32,dummy_sentry_update,dummy_draw)
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
