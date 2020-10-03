@@ -8,8 +8,8 @@ playerstats = {
 	speed = .4,
 	health = 3
 }
-function d() 
-	cls(1)
+function d(n) 
+	cls(n or 1)
 	flip()
 end
 
@@ -58,6 +58,13 @@ function player_update(s)
 	if (btn(⬆️)) s.vy -= .3
 	if (btn(⬅️)) s.vx -= .3
 	if (btn(➡️)) s.vx += .3
+	if (btnp(4)) then
+		d(2)
+		shoot(s,simple_projectile,simple_projectile_draw,atan2(s.vy,s.vx),4,0)
+	end
+	if (btnp(5)) then
+		d(10)
+	end
 	push_others(s)
 	hurt_from(s,{1})
 end
@@ -82,6 +89,12 @@ function simple_projectile_draw(s)
 end
 ----
 
+--SLASH PROJECTILE
+--base
+
+
+----
+
 function game_update()
 	for obj in all(game_objects) do
 		obj.t += 1
@@ -90,10 +103,19 @@ function game_update()
 end
 
 
+st = 0
+frame = 0
 function game_draw()
 	cls()
 	----hud
 	print("hud")
+
+	frame += 0.04
+	for i=-0.2,0.2,0.01 do
+		size = (0.2-abs((i)))*sin(frame)*15
+		if (size < 1.1) size = -1
+		circfill(sin(st+i)*10+64,cos(st+i)*10+64,size,7)
+	end
 	----
 	camera(player.x-64,player.y-64)
 	for obj in all(game_objects) do
@@ -147,7 +169,6 @@ function hurt_from(s,w)
 	for obj in all(game_objects) do
 		for team in all (w) do
 			if obj.contactdamage and obj.w == team and check_aabb(s,obj,3) then
-				d()
 				if obj.isbullet then
 					destroy(obj)
 				end
@@ -163,14 +184,8 @@ function check_aabb(s,obj,size)
 		and s.y > obj.y-size
 end
 
-function flag_at(x,y,f)
-	return fget(mget(flr(x/8),flr(y/8)),f)
-end
-
-
-
 spawn(16,16,dummy_update,dummy_draw)
-player = spawn(16,16,player_update,dummy_draw,0)
+player = spawn(16,16,player_update,player_draw,0)
 spawn(32,32,dummy_sentry_update,dummy_draw)
 
 
@@ -190,6 +205,10 @@ gamestates = {
 		finale_draw
 	}
 }
+
+function flag_at(x,y,f)
+	return fget(mget(flr(x/8),flr(y/8)),f)
+end
 
 function setgamestate(state) 
 	_update60 = state[1]
