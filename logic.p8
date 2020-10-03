@@ -12,14 +12,15 @@ function d(n)
 	cls(n or 1)
 	flip()
 end
+function nothing() end
 
 function spawn(x,y,upd,drw,w)
 	new_gameobj = {}
 	new_gameobj.destroy = destroy
 	new_gameobj.update = upd
 	new_gameobj.draw = drw
-	new_gameobj.x = x
-	new_gameobj.y = y
+	new_gameobj.x = x or error("X not passed!")
+	new_gameobj.y = y or error("Y not passed!")
 	new_gameobj.vx = 0
 	new_gameobj.vy = 0
 	new_gameobj.t = 1
@@ -50,6 +51,7 @@ end
 
 function dummy_update(s)
 	push_others(s)
+	hurt_from(s,{0})
 end
 
 function player_update(s)
@@ -59,11 +61,10 @@ function player_update(s)
 	if (btn(⬅️)) s.vx -= .3
 	if (btn(➡️)) s.vx += .3
 	if (btnp(4)) then
-		d(2)
-		shoot(s,simple_projectile,simple_projectile_draw,atan2(s.vy,s.vx),4,0)
+		do_melee(s)
 	end
 	if (btnp(5)) then
-		d(10)
+		shoot(s,simple_projectile,simple_projectile_draw,atan2(s.vy,s.vx),2,0)
 	end
 	push_others(s)
 	hurt_from(s,{1})
@@ -90,9 +91,50 @@ end
 ----
 
 --SLASH PROJECTILE
---base
+--shoot(s,upd,drw,angle,vel,w)
 
+--build
+function do_melee(s)
+	for i=-0.1,0.1,0.01 do
+		local slash = shoot(s,slash_drawable_update,slash_drawable_draw,atan2(s.vy,s.vx),0,0)
+		slash.ival = i
+	end
+	for i=-0.1,0.1,0.05 do
+		local st = atan2(s.vy,s.vx)
+		local point = {
+			x = sin(st+i)*10+s.x,
+			y = cos(st+i)*10+s.y
+		}
+		local slash = shoot(point,melee_hitbox,nothing,0,0,0)
+	end
+end
+--
 
+--hitboxes
+	function melee_hitbox(s)
+		be_projectile(s)
+		if s.t > 4 then
+			destroy(s)
+		end
+	end
+--
+
+--animation
+	function slash_drawable_update(s)
+		if s.t*0.04 > 1 then
+			destroy(s)
+		end
+	end
+
+	function slash_drawable_draw(s)
+		local st = s.angle
+		local frame = s.t*0.04+0.5
+		local i = s.ival
+		local size = (0.2-abs((i)))*sin(frame)*15
+		if (size < 1.1) size = -1
+		circfill(sin(st+i)*10+s.x,cos(st+i)*10+s.y,size,7)
+	end
+--
 ----
 
 function game_update()
@@ -110,12 +152,7 @@ function game_draw()
 	----hud
 	print("hud")
 
-	frame += 0.04
-	for i=-0.2,0.2,0.01 do
-		size = (0.2-abs((i)))*sin(frame)*15
-		if (size < 1.1) size = -1
-		circfill(sin(st+i)*10+64,cos(st+i)*10+64,size,7)
-	end
+
 	----
 	camera(player.x-64,player.y-64)
 	for obj in all(game_objects) do
@@ -125,6 +162,7 @@ function game_draw()
 	map()
 	camera(0,0)
 end
+
 
 function push_others(s)
 	for obj in all(game_objects) do
@@ -138,8 +176,8 @@ end
 function be_projectile(s)
 	s.x += s.vx
 	s.y += s.vy
-	s.vx = sin(s.angle)*2
-	s.vy = cos(s.angle)*2
+	s.vx = sin(s.angle)*s.vel
+	s.vy = cos(s.angle)*s.vel
 	if flag_at(s.x,s.y,7) then
 		destroy(s)
 	end
@@ -177,8 +215,12 @@ function hurt_from(s,w)
 	end
 end
 
+function player_draw(s) 
+	circfill(s.x,s.y,4,7)
+end
+
 function check_aabb(s,obj,size)
-	return s.x < obj.x+5
+	return s.x < obj.x+size
 		and s.x > obj.x-size
 		and s.y < obj.y+size
 		and s.y > obj.y-size
