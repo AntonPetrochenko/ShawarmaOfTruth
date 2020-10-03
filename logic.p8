@@ -2,7 +2,12 @@ pico-8 cartridge // http://www.pico-8.com
 version 29
 __lua__
 game_objects = {}
-
+playerstats = {
+	magic = 1,
+	sword = 1,
+	speed = .4,
+	health = 3
+}
 function d() 
 	cls(1)
 	flip()
@@ -77,7 +82,7 @@ function simple_projectile_draw(s)
 end
 ----
 
-function _update60()
+function game_update()
 	for obj in all(game_objects) do
 		obj.t += 1
 		obj:update()
@@ -85,13 +90,18 @@ function _update60()
 end
 
 
-function _draw()
+function game_draw()
 	cls()
+	----hud
+	print("hud")
+	----
+	camera(player.x-64,player.y-64)
 	for obj in all(game_objects) do
 		obj:draw()
 		print(obj.w,obj.x,obj.y,8)
 	end
 	map()
+	camera(0,0)
 end
 
 function push_others(s)
@@ -157,9 +167,37 @@ function flag_at(x,y,f)
 	return fget(mget(flr(x/8),flr(y/8)),f)
 end
 
+
+
 spawn(16,16,dummy_update,dummy_draw)
-spawn(16,16,player_update,dummy_draw,0)
+player = spawn(16,16,player_update,dummy_draw,0)
 spawn(32,32,dummy_sentry_update,dummy_draw)
+
+
+
+
+gamestates = {
+	game = {
+		game_update,
+		game_draw
+	},
+	menu = {
+		menu_update,
+		menu_draw
+	},
+	finale = {
+		finale_update,
+		finale_draw
+	}
+}
+
+function setgamestate(state) 
+	_update60 = state[1]
+	_draw = state[2]
+end
+
+setgamestate(gamestates.game)
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
