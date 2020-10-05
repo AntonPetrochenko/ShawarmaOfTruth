@@ -47,14 +47,17 @@ end
 ----DUMMY
 function dummy_draw(s)
 	spr(0,s.x-4,s.y-4)
-	be_tangible(s)
 end
 
 function dummy_update(s)
 	push_others(s)
 	hurt_from(s,{0},enemy_hurt)
+	be_alive(s)
+	be_tangible(s)
 end
+----
 
+----PLAYER
 function player_update(s)
 	be_tangible(s)
 	if (btn(⬇️)) s.vy += .3
@@ -68,7 +71,8 @@ function player_update(s)
 		shoot(s,simple_projectile,simple_projectile_draw,atan2(s.vy,s.vx),2,0)
 	end
 	push_others(s)
-	hurt_from(s,{1})
+	hurt_from(s,{1},nothing)
+	be_alive(s)
 end
 ----
 
@@ -201,7 +205,9 @@ function be_tangible(s)
 end 
 
 function be_alive(s)
-
+	if s.hp < 1 then
+		destroy(s)
+	end
 end
 
 function hurt_from(s,w,res)
@@ -212,7 +218,6 @@ function hurt_from(s,w,res)
 					destroy(obj)
 				end
 				res(s)
-				--d(9)
 			end
 		end
 	end
